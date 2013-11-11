@@ -7,6 +7,7 @@
     node_path: /home/vagrant/node
     eplite_path: /home/vagrant/etherpad-lite
     eplite_console_path: /home/vagrant/etherpad-lite-console
+    eplite_user: vagrant
   user: vagrant
   sudo: True
   tasks:
@@ -14,7 +15,7 @@
     template: src=templates/etc/apt/sources.list.j2 dest=/etc/apt/sources.list owner=root group=root mode=0644
 
   - name: Install dotdeb.org key
-    raw: wget http://www.dotdeb.org/dotdeb.gpg && apt-key add dotdeb.gpg && rm dotdeb.gpg*
+    apt_key: url=http://www.dotdeb.org/dotdeb.gpg state=present
 
   - name: Update APT package cache
     command: apt-get update
@@ -31,6 +32,9 @@
     git: repo=https://github.com/ether/etherpad-lite 
          dest=${eplite_path}
 
+  - name: Change Owner for EP Lite Repository
+    command: chown -R ${eplite_user}:${eplite_user} ${eplite_path}
+
   - name: Build node.js ${node_version}
     raw: cd ${node_path} && ./configure --prefix=/usr/local && make && sudo make install
 
@@ -38,7 +42,7 @@
     template: src=templates/settings.json.j2 dest=${eplite_path}/settings.json owner=root group=root mode=0644
 
   - name: Install redis npm module
-    raw: cd ${eplite_path} && sudo npm install redis
+    npm: name=redis global=yes
 
   - name: Install Etherpad Lite Dependencies
     raw: cd ${eplite_path} && sudo bin/installDeps.sh
@@ -48,4 +52,4 @@
          dest=${eplite_console_path}
 
   - name: Install redis-commander
-    raw: npm install -g redis-commander
+    npm: name=redis-commander global=yes
