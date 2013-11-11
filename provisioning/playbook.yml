@@ -6,6 +6,7 @@
     node_version: v0.10.21
     node_path: /home/vagrant/node
     eplite_path: /home/vagrant/etherpad-lite
+    eplite_version: release/1.3
     eplite_console_path: /home/vagrant/etherpad-lite-console
     eplite_user: etherpad
     eplite_log_path: /var/log/etherpad-lite
@@ -32,6 +33,7 @@
   - name: Checkout Etherpad Lite
     git: repo=https://github.com/ether/etherpad-lite 
          dest=${eplite_path}
+         version=${eplite_version}
 
   - name: Create the EP Lite User ${eplite_user}
     user: name=${eplite_user} home=${eplite_path} shell=/bin/false state=present
