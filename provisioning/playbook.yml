@@ -38,20 +38,20 @@
   - name: Create the EP Lite User ${eplite_user}
     user: name=${eplite_user} home=${eplite_path} shell=/bin/false state=present
 
-  - name: Change Owner for EP Lite Repository
-    command: chown -R ${eplite_user}:${eplite_user} ${eplite_path}
-
   - name: Build node.js ${node_version}
     raw: cd ${node_build_path} && ./configure --prefix=/usr/local && make && make install
 
   - name: Copy EP Lite Configuration
-    template: src=templates/settings.json.j2 dest=${eplite_path}/settings.json owner=root group=root mode=0644
+    template: src=templates/settings.json.j2 dest=${eplite_path}/settings.json owner=${eplite_user} group=${eplite_user} mode=0644
 
   - name: Install redis NPM Module
-    npm: name=redis global=yes
+    npm: name=redis path=${eplite_path} state=present
 
   - name: Install EP Lite Dependencies
     raw: cd ${eplite_path} && sudo bin/installDeps.sh
+
+  - name: Change Owner for EP Lite Repository
+    command: chown -R ${eplite_user}:${eplite_user} ${eplite_path}
 
   - name: Copy EP Lite init.d Script
     template: src=templates/etc/init.d/etherpad-lite.j2 dest=/etc/init.d/etherpad-lite owner=root group=root mode=0755
