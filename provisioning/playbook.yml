@@ -8,6 +8,7 @@
     eplite_path: /home/vagrant/etherpad-lite
     eplite_console_path: /home/vagrant/etherpad-lite-console
     eplite_user: vagrant
+    eplite_log_path: /var/log/etherpad-lite
   user: vagrant
   sudo: True
   tasks:
@@ -47,9 +48,20 @@
   - name: Install Etherpad Lite Dependencies
     raw: cd ${eplite_path} && sudo bin/installDeps.sh
 
+  - name: Copy EP Lite init.d Script
+    template: src=templates/etc/init.d/etherpad-lite.j2 dest=/etc/init.d/etherpad-lite owner=root group=root mode=0755
+
+  - name: Create Log Folder
+    file: path=${eplite_log_path} owner=${eplite_user} group=${eplite_user} mode=0750 state=directory
+    notify: Start EP Lite
+
   - name: Checkout Etherpad Lite Console
     git: repo=https://github.com/0x46616c6b/etherpad-lite-console
          dest=${eplite_console_path}
 
   - name: Install redis-commander
     npm: name=redis-commander global=yes
+
+  handlers:
+    - name: Start EP Lite
+      action: service name=etherpad-lite state=start
