@@ -64,4 +64,4 @@
 
   handlers:
     - name: Start EP Lite
-      action: service name=etherpad-lite state=start
+      action: service name=etherpad-lite state=started
