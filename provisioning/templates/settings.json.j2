@@ -1,0 +1,39 @@
+{
+  "title": "Etherpad",
+  "favicon": "favicon.ico",
+  "ip": "0.0.0.0",
+  "port" : 9001,
+  "sessionKey" : "Y7sc5qSXw5aEBIDGsjfkyLJDV",
+  "dbType" : "redis",
+  "dbSettings" : {
+      "host"        : "localhost",
+      "port"        : 6379,
+      "database"    : 0
+  },
+  "defaultPadText" : "Welcome to Etherpad!\n\nThis pad text is synchronized as you type, so that everyone viewing this page sees the same text. This allows you to collaborate seamlessly on documents!\n\nGet involved with Etherpad at http:\/\/etherpad.org\n",
+  "requireSession" : false,
+  "editOnly" : false,
+  "minify" : true,
+  "maxAge" : 21600,
+  "abiword" : null,
+  "requireAuthentication": false,
+  "requireAuthorization": false,
+  "trustProxy": false,
+  "disableIPlogging": true,
+  "users": {
+    "admin": {
+      "password": "changeme1",
+      "is_admin": true
+    },
+    "user": {
+      "password": "changeme1",
+      "is_admin": false
+    }
+  },
+  "socketTransportProtocols" : ["xhr-polling", "jsonp-polling", "htmlfile"],
+  "loglevel": "INFO",
+  "logconfig" :
+	{ "appenders": [
+	    { "type": "console" }
+	] }
+}

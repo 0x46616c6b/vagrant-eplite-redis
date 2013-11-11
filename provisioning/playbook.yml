@@ -1,0 +1,51 @@
+---
+# vagrant.yml
+- hosts: all
+  vars:
+    packages: "htop redis-server php5-cli php5-curl git python g++ make checkinstall libssl-dev pkg-config build-essential libpq-dev"
+    node_version: v0.10.21
+    node_path: /home/vagrant/node
+    eplite_path: /home/vagrant/etherpad-lite
+    eplite_console_path: /home/vagrant/etherpad-lite-console
+  user: vagrant
+  sudo: True
+  tasks:
+  - name: Copy sources.list
+    template: src=templates/etc/apt/sources.list.j2 dest=/etc/apt/sources.list owner=root group=root mode=0644
+
+  - name: Install dotdeb.org key
+    raw: wget http://www.dotdeb.org/dotdeb.gpg && apt-key add dotdeb.gpg && rm dotdeb.gpg*
+
+  - name: Update APT package cache
+    command: apt-get update
+
+  - name: Install APT packages
+    command: apt-get -y install ${packages}
+
+  - name: Checkout node.js
+    git: repo=https://github.com/joyent/node 
+         dest=${node_path}
+         version=${node_version}
+
+  - name: Checkout Etherpad Lite
+    git: repo=https://github.com/ether/etherpad-lite 
+         dest=${eplite_path}
+
+  - name: Build node.js ${node_version}
+    raw: cd ${node_path} && ./configure --prefix=/usr/local && make && sudo make install
+
+  - name: Copy Etherpad Configuration
+    template: src=templates/settings.json.j2 dest=${eplite_path}/settings.json owner=root group=root mode=0644
+
+  - name: Install redis npm module
+    raw: cd ${eplite_path} && sudo npm install redis
+
+  - name: Install Etherpad Lite Dependencies
+    raw: cd ${eplite_path} && sudo bin/installDeps.sh
+
+  - name: Checkout Etherpad Lite Console
+    git: repo=https://github.com/0x46616c6b/etherpad-lite-console
+         dest=${eplite_console_path}
+
+  - name: Install redis-commander
+    raw: npm install -g redis-commander
