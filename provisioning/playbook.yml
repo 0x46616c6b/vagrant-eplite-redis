@@ -7,7 +7,7 @@
     node_path: /home/vagrant/node
     eplite_path: /home/vagrant/etherpad-lite
     eplite_console_path: /home/vagrant/etherpad-lite-console
-    eplite_user: vagrant
+    eplite_user: etherpad
     eplite_log_path: /var/log/etherpad-lite
   user: vagrant
   sudo: True
@@ -33,29 +33,32 @@
     git: repo=https://github.com/ether/etherpad-lite 
          dest=${eplite_path}
 
+  - name: Create the EP Lite User ${eplite_user}
+    user: name=${eplite_user} home=${eplite_path} shell=/bin/false state=present
+
   - name: Change Owner for EP Lite Repository
     command: chown -R ${eplite_user}:${eplite_user} ${eplite_path}
 
   - name: Build node.js ${node_version}
     raw: cd ${node_path} && ./configure --prefix=/usr/local && make && sudo make install
 
-  - name: Copy Etherpad Configuration
+  - name: Copy EP Lite Configuration
     template: src=templates/settings.json.j2 dest=${eplite_path}/settings.json owner=root group=root mode=0644
 
-  - name: Install redis npm module
+  - name: Install redis NPM Module
     npm: name=redis global=yes
 
-  - name: Install Etherpad Lite Dependencies
+  - name: Install EP Lite Dependencies
     raw: cd ${eplite_path} && sudo bin/installDeps.sh
 
   - name: Copy EP Lite init.d Script
     template: src=templates/etc/init.d/etherpad-lite.j2 dest=/etc/init.d/etherpad-lite owner=root group=root mode=0755
 
   - name: Create Log Folder
-    file: path=${eplite_log_path} owner=${eplite_user} group=${eplite_user} mode=0750 state=directory
-    notify: Start EP Lite
+    file: path=${eplite_log_path} owner=${eplite_user} group=${eplite_user} mode=0750 recurse=yes state=directory
+    notify: Restart EP Lite
 
-  - name: Checkout Etherpad Lite Console
+  - name: Checkout EP Lite Console
     git: repo=https://github.com/0x46616c6b/etherpad-lite-console
          dest=${eplite_console_path}
 
@@ -63,5 +66,5 @@
     npm: name=redis-commander global=yes
 
   handlers:
-    - name: Start EP Lite
-      action: service name=etherpad-lite state=started
+    - name: Restart EP Lite
+      action: service name=etherpad-lite state=restarted
